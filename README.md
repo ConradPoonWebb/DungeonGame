@@ -1,2 +1,3 @@
-# DungeonGame
-Randomized Dungeon Game in Python
+# DungeonGame - Name yet to be decided
+
+By Conrad Poon
