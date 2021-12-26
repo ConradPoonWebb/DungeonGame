@@ -11,6 +11,7 @@
     class Weapons - Creates weapons with description?
     class Players - Creates the main character and companions
     class Item - Creates an item in the dungeon. Maybe could include weapons?
+    class Rooms - Creates details about
     class NPC(?) - Creates an NPC that can live/work in dungeon
        - Maybe add store system plus currency?
     Turn based battle system - Maybe with some graphics? Quite hard to do
