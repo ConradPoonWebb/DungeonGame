@@ -78,11 +78,13 @@ class Dungeon:
     def checkEmpty(self,posX,posY):
         """Checks if a space is occupied
            by an element"""
-        if posX not in range(self.fX):
+        if (posX < 0) or (posY < 0):
+            return True
+        elif posX not in list(range(self.fX)):
             return False
-        elif posY not in range(self.fY):
+        elif posY not in list(range(self.fY)):
             return False
-        elif (self.data[posY][posX] != ' ') or (self.data[posY][posX] == "\033[1;32;40mO\033[0m"):
+        elif (self.data[posY][posX] != ' '):
             return False
         return True
 
@@ -127,9 +129,9 @@ class Dungeon:
                 moveList.append((currentX+1,currentY))
             if self.checkEmpty(currentX-1,currentY): #Check Left
                 moveList.append((currentX-1,currentY))
-            if self.checkEmpty(currentX,currentY+1): #Check Up
+            if self.checkEmpty(currentX,currentY+1): #Check Down
                 moveList.append((currentX,currentY+1))
-            if self.checkEmpty(currentX,currentY-1): #Check Down
+            if self.checkEmpty(currentX,currentY-1): #Check Up
                 moveList.append((currentX,currentY-1))
             
             for coord in moveList:
@@ -153,19 +155,81 @@ class Dungeon:
         return path
     
     def createManyRooms(self,coords):
+        """Create rooms based on a list of 
+           coordinates (tuples)"""
         for coord in coords:
             self.createRoom(coord[0],coord[1],'?')
+    
+    def neighborRooms(self,posX,posY):
+        """Check how many rooms are
+           next to a space on the map"""
+        count = 0
+        if (self.checkEmpty(posX+1,posY) == False): #Check Right
+            count += 1
+        if (self.checkEmpty(posX-1,posY) == False): #Check Left
+            count += 1
+        if (self.checkEmpty(posX,posY+1) == False): #Check Down
+            count += 1
+        if (self.checkEmpty(posX,posY-1) == False): #Check Up
+            count += 1
+        return count
+
+    def checkBranch(self,posX,posY):
+        """Check the availability of
+           a branch"""
+        coords = []
+        if self.neighborRooms(posX,posY) == 2 and (self.checkEmpty(posX,posY) == False):
+            posPlaces = []
+            if self.checkEmpty(posX+1,posY): #Check Right
+                posPlaces.append((posX+1,posY))
+            if self.checkEmpty(posX-1,posY): #Check Left
+                posPlaces.append((posX-1,posY))
+            if self.checkEmpty(posX,posY+1): #Check Down
+                posPlaces.append((posX,posY+1))
+            if self.checkEmpty(posX,posY-1): #Check Up
+                posPlaces.append((posX,posY-1))
+            for coord in posPlaces:
+                if coord[0] < 0 or coord [1] < 0:
+                    continue
+                if (self.neighborRooms(coord[0],coord[1]) <= 1) and (self.checkEmpty(coord[0],coord[1]) == True):
+                    coords.append(coord)
+        else:
+            return False
+        if len(coords) > 0:
+            return True
+        else:
+            return False
+    
+    def branchCoords(self,posX,posY):
+        posPlaces = []
+        coords = []
+        if self.checkEmpty(posX+1,posY): #Check Right
+            posPlaces.append((posX+1,posY))
+        if self.checkEmpty(posX-1,posY): #Check Left
+            posPlaces.append((posX-1,posY))
+        if self.checkEmpty(posX,posY+1): #Check Down
+            posPlaces.append((posX,posY+1))
+        if self.checkEmpty(posX,posY-1): #Check Up
+            posPlaces.append((posX,posY-1))
+        for coord in posPlaces:
+            if coord[0] < 0 or coord [1] < 0:
+                continue
+            if (self.neighborRooms(coord[0],coord[1]) <= 1) and (self.checkEmpty(coord[0],coord[1]) == True):
+                coords.append(coord)
+        
+        return coords
+        
 
 
 
 #tests
 d = Dungeon(5,5)
 d.createEntrance(0,0)
-d.createExit(2,3)
-#d.createRoom(1,2,'■')
-#d.createRoom(2,2,'□')
-#d.createRoom(3,2,'✭')
-#d.createRoom(4,2,'?')
+d.createExit(4,4)
 path = d.enterToExit()
 d.createManyRooms(path)
+if d.checkBranch(1,0):
+    print(d.branchCoords(1,0))
+if d.checkBranch(0,1):
+    print(d.branchCoords(0,1))
 print(d)
